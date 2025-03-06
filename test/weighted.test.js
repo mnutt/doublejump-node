@@ -1,4 +1,4 @@
-const { WeightedHash } = require('../build/Release/doublejump.node');
+const WeightedHash = require('../lib/weighted_hash');
 
 describe('WeightedHash', () => {
   test('should create a weighted hash instance with weights', () => {

@@ -1,6 +1,6 @@
-const { DoubleJump, WeightedHash } = require('../');
+const { DoubleJump } = require('../');
 const { HashRing } = require('@movable/hash_ring');
-const { WeightedHash: WeightedHashJs } = require('../weighted_hash');
+const WeightedHash = require('../lib/weighted_hash');
 
 // Test data generation
 function generateTestData(numKeys) {
@@ -81,23 +81,6 @@ function benchmarkDoubleJump(keys, nodes) {
 
 function benchmarkWeightedHash(keys, weightedNodes) {
   const weightedHash = new WeightedHash(weightedNodes);
-
-  // Warmup run
-  for (const key of keys) {
-    weightedHash.get(key);
-  }
-
-  // Actual benchmark run
-  const start = process.hrtime.bigint();
-  for (const key of keys) {
-    weightedHash.get(key);
-  }
-  const end = process.hrtime.bigint();
-  return Number(end - start) / 1_000_000; // Convert to ms
-}
-
-function benchmarkWeightedHashJs(keys, weightedNodes) {
-  const weightedHash = new WeightedHashJs(weightedNodes);
 
   // Warmup run
   for (const key of keys) {
@@ -215,36 +198,29 @@ for (const scenario of scenarios) {
 
   // Weighted distribution
   const weightedHashTime = benchmarkWeightedHash(keys, scenario.weightedNodes);
-  const weightedHashJsTime = benchmarkWeightedHashJs(keys, scenario.weightedNodes);
   const hrWeightedTime = benchmarkHashRingWeighted(keys, scenario.weightedNodes);
 
   console.log(`\nPerformance:`);
   console.log(`DoubleJump: ${djTime.toFixed(2)}ms (${(djTime / NUM_KEYS).toFixed(3)}µs/key)`);
-  console.log(`WeightedHash (C++): ${weightedHashTime.toFixed(2)}ms (${(weightedHashTime / NUM_KEYS).toFixed(3)}µs/key)`);
-  console.log(`WeightedHash (JS): ${weightedHashJsTime.toFixed(2)}ms (${(weightedHashJsTime / NUM_KEYS).toFixed(3)}µs/key)`);
+  console.log(`WeightedHash: ${weightedHashTime.toFixed(2)}ms (${(weightedHashTime / NUM_KEYS).toFixed(3)}µs/key)`);
   console.log(`HashRing: ${hrTime.toFixed(2)}ms (${(hrTime / NUM_KEYS).toFixed(3)}µs/key)`);
   console.log(`HashRing (weighted): ${hrWeightedTime.toFixed(2)}ms (${(hrWeightedTime / NUM_KEYS).toFixed(3)}µs/key)`);
 
   // Analyze distribution for weighted tests
   console.log('\nDistribution analysis:');
   const weightedHash = new WeightedHash(scenario.weightedNodes);
-  const weightedHashJs = new WeightedHashJs(scenario.weightedNodes);
   const hashRing = new HashRing(scenario.weightedNodes, PRECISION);
 
   const weightedHashDist = analyzeDistribution(keys, key => weightedHash.get(key));
-  const weightedHashJsDist = analyzeDistribution(keys, key => weightedHashJs.get(key));
   const hrDist = analyzeDistribution(keys, key => hashRing.getNode(key));
 
-  console.log('WeightedHash (C++) distribution:', limitOutput(weightedHashDist));
-  console.log('WeightedHash (JS) distribution:', limitOutput(weightedHashJsDist));
+  console.log('WeightedHash distribution:', limitOutput(weightedHashDist));
   console.log('HashRing distribution:', limitOutput(hrDist));
 
   // Calculate and display distribution accuracy scores
   const weightedHashScore = calculateDistributionScore(weightedHashDist, scenario.weightedNodes);
-  const weightedHashJsScore = calculateDistributionScore(weightedHashJsDist, scenario.weightedNodes);
   const hashRingScore = calculateDistributionScore(hrDist, scenario.weightedNodes);
   console.log('\nDistribution accuracy (lower is better):');
-  console.log(`WeightedHash (C++) RMSE: ${weightedHashScore.toFixed(2)}%`);
-  console.log(`WeightedHash (JS) RMSE: ${weightedHashJsScore.toFixed(2)}%`);
+  console.log(`WeightedHash RMSE: ${weightedHashScore.toFixed(2)}%`);
   console.log(`HashRing RMSE: ${hashRingScore.toFixed(2)}%`);
 } 

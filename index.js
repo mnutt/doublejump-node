@@ -1,4 +1,8 @@
 const path = require('path');
-const addon = require(path.join(__dirname, 'build/Release/doublejump.node'));
+const DoubleJump = require('./lib/doublejump');
+const WeightedHash = require('./lib/weighted_hash');
 
-module.exports = addon; 
+module.exports = {
+  DoubleJump,
+  WeightedHash
+}; 
