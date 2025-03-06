@@ -3,7 +3,7 @@
 #include <random>
 
 // Jump hash implementation
-static int32_t jump_hash(uint64_t key, int32_t num_buckets)
+static int32_t jump_hash(uint64_t key, int32_t num_buckets) noexcept
 {
   int64_t b = -1;
   int64_t j = 0;
@@ -16,7 +16,7 @@ static int32_t jump_hash(uint64_t key, int32_t num_buckets)
   return b;
 }
 
-void LooseHolder::add(const std::string &obj)
+void LooseHolder::add(const std::string &obj) noexcept
 {
   if (m.find(obj) != m.end())
   {
@@ -37,7 +37,7 @@ void LooseHolder::add(const std::string &obj)
   }
 }
 
-void LooseHolder::remove(const std::string &obj)
+void LooseHolder::remove(const std::string &obj) noexcept
 {
   auto it = m.find(obj);
   if (it != m.end())
@@ -48,7 +48,7 @@ void LooseHolder::remove(const std::string &obj)
   }
 }
 
-std::string LooseHolder::get(uint64_t key) const
+[[nodiscard]] std::string LooseHolder::get(uint64_t key) const noexcept
 {
   if (a.empty())
   {
@@ -58,7 +58,7 @@ std::string LooseHolder::get(uint64_t key) const
   return a[h];
 }
 
-void LooseHolder::shrink()
+void LooseHolder::shrink() noexcept
 {
   if (f.empty())
   {
@@ -66,6 +66,7 @@ void LooseHolder::shrink()
   }
 
   std::vector<std::string> newA;
+  newA.reserve(a.size() - f.size());
   for (const auto &obj : a)
   {
     if (!obj.empty())
@@ -78,7 +79,7 @@ void LooseHolder::shrink()
   f.clear();
 }
 
-void CompactHolder::add(const std::string &obj)
+void CompactHolder::add(const std::string &obj) noexcept
 {
   if (m.find(obj) != m.end())
   {
@@ -88,7 +89,7 @@ void CompactHolder::add(const std::string &obj)
   m[obj] = a.size() - 1;
 }
 
-void CompactHolder::remove(const std::string &obj)
+void CompactHolder::remove(const std::string &obj) noexcept
 {
   auto it = m.find(obj);
   if (it != m.end())
@@ -102,7 +103,7 @@ void CompactHolder::remove(const std::string &obj)
   }
 }
 
-std::string CompactHolder::get(uint64_t key) const
+[[nodiscard]] std::string CompactHolder::get(uint64_t key) const noexcept
 {
   if (a.empty())
   {
@@ -112,17 +113,21 @@ std::string CompactHolder::get(uint64_t key) const
   return a[h];
 }
 
-void CompactHolder::shrink(const std::vector<std::string> &newA)
+void CompactHolder::shrink(const std::vector<std::string> &newA) noexcept
 {
+  m.clear();
   for (size_t i = 0; i < newA.size(); ++i)
   {
-    a[i] = newA[i];
-    m[newA[i]] = i;
+    m.emplace(newA[i], i);
   }
-  a.resize(newA.size());
+  a = newA;
 }
 
-void DoubleJump::add(const std::string &obj)
+// Initialize static members
+std::mt19937 DoubleJump::gen(DoubleJump::rd());
+std::random_device DoubleJump::rd;
+
+void DoubleJump::add(const std::string &obj) noexcept
 {
   if (obj.empty())
   {
@@ -132,7 +137,7 @@ void DoubleJump::add(const std::string &obj)
   compact.add(obj);
 }
 
-void DoubleJump::remove(const std::string &obj)
+void DoubleJump::remove(const std::string &obj) noexcept
 {
   if (obj.empty())
   {
@@ -142,7 +147,7 @@ void DoubleJump::remove(const std::string &obj)
   compact.remove(obj);
 }
 
-std::string DoubleJump::get(const std::string &key) const
+[[nodiscard]] std::string DoubleJump::get(const std::string &key) const noexcept
 {
   uint64_t hash = hashString(key);
   std::string obj = loose.get(hash);
@@ -153,40 +158,38 @@ std::string DoubleJump::get(const std::string &key) const
   return obj;
 }
 
-void DoubleJump::shrink()
+void DoubleJump::shrink() noexcept
 {
   loose.shrink();
   compact.shrink(loose.getArray());
 }
 
-size_t DoubleJump::len() const
+[[nodiscard]] size_t DoubleJump::len() const noexcept
 {
   return compact.size();
 }
 
-size_t DoubleJump::looseLen() const
+[[nodiscard]] size_t DoubleJump::looseLen() const noexcept
 {
   return loose.size();
 }
 
-std::vector<std::string> DoubleJump::all() const
+[[nodiscard]] std::vector<std::string> DoubleJump::all() const noexcept
 {
   return compact.getArray();
 }
 
-std::string DoubleJump::random() const
+[[nodiscard]] std::string DoubleJump::random() const noexcept
 {
   if (compact.empty())
   {
     return "";
   }
-  static std::random_device rd;
-  static std::mt19937 gen(rd());
   std::uniform_int_distribution<size_t> dis(0, compact.size() - 1);
   return compact.getArray()[dis(gen)];
 }
 
-uint64_t DoubleJump::hashString(const std::string &str) const
+[[nodiscard]] uint64_t DoubleJump::hashString(const std::string &str) const noexcept
 {
   uint8_t hash[8];
   MetroHash64::Hash(reinterpret_cast<const uint8_t *>(str.c_str()), str.length(), hash, 0);

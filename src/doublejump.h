@@ -4,17 +4,18 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <random>
 #include <napi.h>
 
 class LooseHolder
 {
 public:
-  void add(const std::string &obj);
-  void remove(const std::string &obj);
-  std::string get(uint64_t key) const;
-  void shrink();
-  size_t size() const { return a.size(); }
-  const std::vector<std::string> &getArray() const { return a; }
+  void add(const std::string &obj) noexcept;
+  void remove(const std::string &obj) noexcept;
+  [[nodiscard]] std::string get(uint64_t key) const noexcept;
+  void shrink() noexcept;
+  [[nodiscard]] size_t size() const noexcept { return a.size(); }
+  [[nodiscard]] const std::vector<std::string> &getArray() const noexcept { return a; }
 
 private:
   std::vector<std::string> a;
@@ -25,13 +26,13 @@ private:
 class CompactHolder
 {
 public:
-  void add(const std::string &obj);
-  void remove(const std::string &obj);
-  std::string get(uint64_t key) const;
-  void shrink(const std::vector<std::string> &newA);
-  size_t size() const { return a.size(); }
-  const std::vector<std::string> &getArray() const { return a; }
-  bool empty() const { return a.empty(); }
+  void add(const std::string &obj) noexcept;
+  void remove(const std::string &obj) noexcept;
+  [[nodiscard]] std::string get(uint64_t key) const noexcept;
+  void shrink(const std::vector<std::string> &newA) noexcept;
+  [[nodiscard]] size_t size() const noexcept { return a.size(); }
+  [[nodiscard]] const std::vector<std::string> &getArray() const noexcept { return a; }
+  [[nodiscard]] bool empty() const noexcept { return a.empty(); }
 
 private:
   std::vector<std::string> a;
@@ -43,19 +44,21 @@ class DoubleJump
 public:
   DoubleJump() = default;
 
-  void add(const std::string &obj);
-  void remove(const std::string &obj);
-  std::string get(const std::string &key) const;
-  void shrink();
-  size_t len() const;
-  size_t looseLen() const;
-  std::vector<std::string> all() const;
-  std::string random() const;
+  void add(const std::string &obj) noexcept;
+  void remove(const std::string &obj) noexcept;
+  [[nodiscard]] std::string get(const std::string &key) const noexcept;
+  void shrink() noexcept;
+  [[nodiscard]] size_t len() const noexcept;
+  [[nodiscard]] size_t looseLen() const noexcept;
+  [[nodiscard]] std::vector<std::string> all() const noexcept;
+  [[nodiscard]] std::string random() const noexcept;
 
 private:
   LooseHolder loose;
   CompactHolder compact;
-  uint64_t hashString(const std::string &str) const;
+  [[nodiscard]] uint64_t hashString(const std::string &str) const noexcept;
+  static std::mt19937 gen;
+  static std::random_device rd;
 };
 
 // Node.js wrapper class
