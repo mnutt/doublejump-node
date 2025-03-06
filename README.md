@@ -2,6 +2,8 @@
 
 A Node.js native addon implementing the Jump Consistent Hash algorithm with a dual-bucket strategy for efficient object distribution and lookup.
 
+Acknowledgements: this is just a reimplementation of https://github.com/edwingeng/doublejump as a c++ node module.
+
 ## Features
 
 - Consistent hashing implementation using Jump Hash algorithm
@@ -108,46 +110,12 @@ npm install
 
 ## Performance Testing
 
-The package includes comprehensive performance benchmarks that measure:
-- Add/remove operations with different dataset sizes (1K, 10K, 100K items)
-- Lookup performance with 1 million operations
-- Random selection performance
-- Shrink operation performance
-- Memory usage statistics
-
 To run the benchmarks:
 
 ```bash
 npm run bench
 ```
 
-Example output:
-```
-=== DoubleJump Performance Tests ===
-
-Small Dataset Tests (1,000 items)
-----------------------------------
-Adding 1,000 items: 500,000 ops/sec
-Getting items (1,000,000 lookups): 2,500,000 ops/sec
-Random selection (1,000,000 selections): 1,800,000 ops/sec
-Removing 500 items: 450,000 ops/sec
-Shrink operation: 25,000 ops/sec
-
-... medium and large dataset results ...
-
-Memory Usage
-------------
-heapTotal: 4.23 MB
-heapUsed: 3.15 MB
-external: 0.89 MB
-```
-
-The benchmark suite tests the performance characteristics across different workloads to help you understand how the package performs in your use case.
-
 ## License
 
-MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 
+BSD 3-Clause
