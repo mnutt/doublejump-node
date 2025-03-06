@@ -6,11 +6,17 @@
   "scripts": {
     "install": "node-gyp rebuild",
     "build": "node-gyp rebuild",
-    "test": "./node_modules/.bin/jest"
+    "test": "./node_modules/.bin/jest",
+    "bench": "node bench/performance.js"
   },
-  "keywords": [],
+  "keywords": [
+    "consistent-hashing",
+    "jump-hash",
+    "native-addon",
+    "distribution"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "node-addon-api": "^7.0.0"
   },
