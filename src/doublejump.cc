@@ -1,5 +1,6 @@
 #include "doublejump.h"
 #include "metrohash64.h"
+#include "weighted_hash.h"
 #include <random>
 #include <chrono>
 
@@ -218,6 +219,10 @@ Napi::Object DoubleJumpWrapper::Init(Napi::Env env, Napi::Object exports)
   constructor.SuppressDestruct();
 
   exports.Set("DoubleJump", func);
+
+  // Initialize WeightedHash class
+  WeightedHashWrapper::Init(env, exports);
+
   return exports;
 }
 

@@ -3,7 +3,8 @@
     "target_name": "doublejump",
     "sources": [
       "src/doublejump.cc",
-      "src/metrohash64.cc"
+      "src/metrohash64.cc",
+      "src/weighted_hash.cc"
     ],
     "include_dirs": [
       "<!@(node -p \"require('node-addon-api').include\")",
