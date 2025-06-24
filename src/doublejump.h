@@ -58,7 +58,6 @@ private:
   CompactHolder compact;
   [[nodiscard]] uint64_t hashString(const std::string &str) const noexcept;
   static std::mt19937 gen;
-  static std::random_device rd;
 };
 
 // Node.js wrapper class
