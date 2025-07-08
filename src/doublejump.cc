@@ -1,6 +1,7 @@
 #include "doublejump.h"
 #include "metrohash64.h"
 #include <random>
+#include <chrono>
 
 // Jump hash implementation
 static int32_t jump_hash(uint64_t key, int32_t num_buckets) noexcept
@@ -124,8 +125,7 @@ void CompactHolder::shrink(const std::vector<std::string> &newA) noexcept
 }
 
 // Initialize static members
-std::mt19937 DoubleJump::gen(DoubleJump::rd());
-std::random_device DoubleJump::rd;
+std::mt19937 DoubleJump::gen(std::chrono::system_clock::now().time_since_epoch().count());
 
 void DoubleJump::add(const std::string &obj) noexcept
 {
